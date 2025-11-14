@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - AIpreneurs Global Challenge 2025</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-logo">
+                <img src="../assets/aipreneurs-logo.svg" alt="AIpreneurs Logo" class="logo-img">
+            </a>
+            <div class="nav-auth">
+                <span id="userEmail" style="color: white; margin-right: 1.5rem;"></span>
+                <button onclick="handleLogout()" class="btn logout-btn">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="#dashboard" class="sidebar-link active" onclick="switchView('dashboard')">Dashboard</a></li>
+                <li><a href="#tasks" class="sidebar-link" onclick="switchView('tasks')">My Tasks</a></li>
+                <li><a href="#submissions" class="sidebar-link" onclick="switchView('submissions')">My Submissions</a></li>
+                <li><a href="#announcements" class="sidebar-link" onclick="switchView('announcements')">Announcements</a></li>
+                <li><a href="#profile" class="sidebar-link" onclick="switchView('profile')">Profile</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard View -->
+            <div id="dashboard" class="view-content">
+                <div class="page-header">
+                    <h1>Welcome to Your Dashboard</h1>
+                    <p id="welcomeMsg"></p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card accent-primary">
+                        <div class="stat-label">Total Tasks</div>
+                        <div class="stat-value" id="totalTasks">0</div>
+                    </div>
+                    <div class="stat-card accent-secondary">
+                        <div class="stat-label">Submitted</div>
+                        <div class="stat-value" id="submittedCount">0</div>
+                    </div>
+                    <div class="stat-card accent-green">
+                        <div class="stat-label">Approved</div>
+                        <div class="stat-value" id="approvedCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Pending Review</div>
+                        <div class="stat-value" id="pendingCount">0</div>
+                    </div>
+                </div>
+
+                <h2 style="color: var(--primary-color); margin-top: 2rem; margin-bottom: 1rem;">Recent Announcements</h2>
+                <div id="recentAnnouncements" class="grid grid-2"></div>
+
+                <h2 style="color: var(--primary-color); margin-top: 2rem; margin-bottom: 1rem;">Upcoming Tasks</h2>
+                <div id="upcomingTasks" class="grid grid-2"></div>
+            </div>
+
+            <!-- Tasks View -->
+            <div id="tasks" class="view-content" style="display: none;">
+                <div class="page-header">
+                    <h1>My Tasks</h1>
+                    <p>View and manage your assigned tasks</p>
+                </div>
+
+                <div id="tasksList" class="grid grid-2"></div>
+            </div>
+
+            <!-- Submissions View -->
+            <div id="submissions" class="view-content" style="display: none;">
+                <div class="page-header">
+                    <h1>My Submissions</h1>
+                    <p>Track the status of your task submissions</p>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="submissionsTable">
+                        <thead>
+                            <tr>
+                                <th>Task ID</th>
+                                <th>Submitted Date</th>
+                                <th>Status</th>
+                                <th>Feedback</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="submissionsBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Announcements View -->
+            <div id="announcements" class="view-content" style="display: none;">
+                <div class="page-header">
+                    <h1>Event Announcements</h1>
+                    <p>Important updates and notifications</p>
+                </div>
+
+                <div id="announcementsList"></div>
+            </div>
+
+            <!-- Profile View -->
+            <div id="profile" class="view-content" style="display: none;">
+                <div class="page-header">
+                    <h1>Your Profile</h1>
+                    <p>View and update your profile information</p>
+                </div>
+
+                <div class="card" style="max-width: 600px;">
+                    <form id="profileForm" onsubmit="handleProfileUpdate(event)">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="profileEmail" readonly style="background: var(--light-bg);">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="profileName">Full Name</label>
+                            <input type="text" id="profileName" name="profileName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="profileSchool">School/College</label>
+                            <input type="text" id="profileSchool" name="profileSchool" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="profilePhone">Phone Number</label>
+                            <input type="tel" id="profilePhone" name="profilePhone">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="profileStatus">Current Status</label>
+                            <input type="text" id="profileStatus" readonly style="background: var(--light-bg);">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Task Submission Modal -->
+    <div id="submissionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Submit Task</span>
+                <button class="modal-close" onclick="closeModal('submissionModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="submissionForm" onsubmit="handleTaskSubmission(event)">
+                    <input type="hidden" id="taskIdToSubmit">
+                    
+                    <div class="form-group">
+                        <label for="submissionFile">Upload File</label>
+                        <input type="file" id="submissionFile" name="submissionFile" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="submissionDesc">Description (Optional)</label>
+                        <textarea id="submissionDesc" name="submissionDesc" placeholder="Describe your submission"></textarea>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" onclick="closeModal('submissionModal')" class="btn btn-light">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-bottom">
+            <p>&copy; 2025 AIpreneurs Global Challenge. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../js/utils.js"></script>
+    <script src="../js/firebase-config.js"></script>
+    <script>
+        let currentUser = null;
+        let allTasks = [];
+        let userSubmissions = [];
+
+        // Initialize Dashboard
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById("userEmail").textContent = user.email;
+                await loadDashboardData();
+            } else {
+                window.location.href = "student-login.html";
+            }
+        });
+
+        // Load Dashboard Data
+        async function loadDashboardData() {
+            const userResult = await getUserData(currentUser.uid);
+            if (userResult.success) {
+                const userData = userResult.data;
+                document.getElementById("welcomeMsg").textContent = `Welcome back, ${userData.fullName || "Student"}!`;
+                
+                // Load profile data
+                document.getElementById("profileEmail").value = currentUser.email;
+                document.getElementById("profileName").value = userData.fullName || "";
+                document.getElementById("profileSchool").value = userData.school || "";
+                document.getElementById("profilePhone").value = userData.phone || "";
+                document.getElementById("profileStatus").value = userData.status || "pending";
+            }
+
+            // Load tasks
+            const tasksResult = await getTasks();
+            if (tasksResult.success) {
+                allTasks = tasksResult.data;
+                document.getElementById("totalTasks").textContent = allTasks.length;
+                displayUpcomingTasks();
+                displayTasksList();
+            }
+
+            // Load submissions
+            const submissionsResult = await getSubmissions({ userId: currentUser.uid });
+            if (submissionsResult.success) {
+                userSubmissions = submissionsResult.data;
+                document.getElementById("submittedCount").textContent = userSubmissions.filter(s => s.status !== "pending").length;
+                document.getElementById("approvedCount").textContent = userSubmissions.filter(s => s.status === "approved").length;
+                document.getElementById("pendingCount").textContent = userSubmissions.filter(s => s.status === "pending").length;
+                displaySubmissions();
+            }
+
+            // Load announcements
+            const announcementsResult = await getAnnouncements();
+            if (announcementsResult.success) {
+                displayAnnouncements(announcementsResult.data.slice(0, 3));
+                displayAllAnnouncements(announcementsResult.data);
+            }
+        }
+
+        // Display Upcoming Tasks
+        function displayUpcomingTasks() {
+            const container = document.getElementById("upcomingTasks");
+            if (allTasks.length === 0) {
+                container.innerHTML = "<p>No tasks available yet</p>";
+                return;
+            }
+
+            container.innerHTML = allTasks.slice(0, 2).map(task => `
+                <div class="card">
+                    <h3 class="card-title">${task.title}</h3>
+                    <p class="card-description">${task.description}</p>
+                    <p style="margin-top: 1rem; color: var(--text-light); font-size: 0.9rem;">
+                        <strong>Due:</strong> ${formatDate(task.dueDate)}
+                    </p>
+                    <button onclick="openTaskSubmission('${task.id}')" class="btn btn-primary btn-sm" style="margin-top: 1rem;">Submit Task</button>
+                </div>
+            `).join("");
+        }
+
+        // Display Tasks List
+        function displayTasksList() {
+            const container = document.getElementById("tasksList");
+            if (allTasks.length === 0) {
+                container.innerHTML = "<p>No tasks available yet</p>";
+                return;
+            }
+
+            container.innerHTML = allTasks.map(task => `
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                        <h3 class="card-title">${task.title}</h3>
+                        <span class="badge badge-info">${task.stage}</span>
+                    </div>
+                    <p class="card-description">${task.description}</p>
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                        <p style="color: var(--text-light); font-size: 0.9rem;">
+                            <strong>Due Date:</strong> ${formatDate(task.dueDate)}
+                        </p>
+                    </div>
+                    <button onclick="openTaskSubmission('${task.id}')" class="btn btn-primary btn-sm" style="margin-top: 1rem;">Submit Task</button>
+                </div>
+            `).join("");
+        }
+
+        // Display Recent Announcements
+        function displayAnnouncements(announcements) {
+            const container = document.getElementById("recentAnnouncements");
+            if (announcements.length === 0) {
+                container.innerHTML = "<p>No announcements yet</p>";
+                return;
+            }
+
+            container.innerHTML = announcements.map(ann => `
+                <div class="card">
+                    <h3 class="card-title">${ann.title}</h3>
+                    <p class="card-description">${ann.content.substring(0, 150)}...</p>
+                    <p style="margin-top: 1rem; color: var(--text-light); font-size: 0.85rem;">
+                        ${formatDate(ann.createdAt)}
+                    </p>
+                </div>
+            `).join("");
+        }
+
+        // Display All Announcements
+        function displayAllAnnouncements(announcements) {
+            const container = document.getElementById("announcementsList");
+            if (announcements.length === 0) {
+                container.innerHTML = "<p>No announcements available</p>";
+                return;
+            }
+
+            container.innerHTML = announcements.map(ann => `
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                        <h3 class="card-title">${ann.title}</h3>
+                        <span class="badge badge-success">Published</span>
+                    </div>
+                    <p>${ann.content}</p>
+                    <p style="margin-top: 1rem; color: var(--text-light); font-size: 0.85rem;">
+                        <strong>Posted:</strong> ${formatDateTime(ann.createdAt)}
+                    </p>
+                </div>
+            `).join("");
+        }
+
+        // Display Submissions
+        function displaySubmissions() {
+            const tbody = document.getElementById("submissionsBody");
+            if (userSubmissions.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='5'>No submissions yet</td></tr>";
+                return;
+            }
+
+            tbody.innerHTML = userSubmissions.map(sub => `
+                <tr>
+                    <td>${sub.taskId}</td>
+                    <td>${formatDate(sub.submittedAt)}</td>
+                    <td><span class="badge badge-${getStatusColor(sub.status)}">${sub.status}</span></td>
+                    <td>${sub.feedback || "Awaiting review"}</td>
+                    <td><a href="${sub.fileUrl}" target="_blank" class="btn btn-sm btn-light">View File</a></td>
+                </tr>
+            `).join("");
+        }
+
+        // Get Status Color
+        function getStatusColor(status) {
+            switch(status) {
+                case "approved": return "success";
+                case "pending": return "warning";
+                case "rejected": return "danger";
+                default: return "info";
+            }
+        }
+
+        // Open Task Submission Modal
+        function openTaskSubmission(taskId) {
+            document.getElementById("taskIdToSubmit").value = taskId;
+            openModal("submissionModal");
+        }
+
+        // Handle Task Submission
+        async function handleTaskSubmission(event) {
+            event.preventDefault();
+
+            const taskId = document.getElementById("taskIdToSubmit").value;
+            const file = document.getElementById("submissionFile").files[0];
+            const description = document.getElementById("submissionDesc").value;
+
+            if (!file) {
+                showAlert("Please select a file", "warning");
+                return;
+            }
+
+            try {
+                // Upload file
+                const uploadResult = await uploadFile(file, "submissions");
+                if (uploadResult.success) {
+                    // Create submission record
+                    const submissionResult = await submitTask(taskId, currentUser.uid, uploadResult.url, description);
+                    if (submissionResult.success) {
+                        showAlert("Task submitted successfully", "success");
+                        closeModal("submissionModal");
+                        document.getElementById("submissionForm").reset();
+                        await loadDashboardData();
+                    }
+                }
+            } catch (error) {
+                showAlert("Error submitting task: " + error.message, "danger");
+            }
+        }
+
+        // Handle Profile Update
+        async function handleProfileUpdate(event) {
+            event.preventDefault();
+
+            const fullName = document.getElementById("profileName").value;
+            const school = document.getElementById("profileSchool").value;
+            const phone = document.getElementById("profilePhone").value;
+
+            try {
+                await updateUserData(currentUser.uid, {
+                    fullName: fullName,
+                    school: school,
+                    phone: phone,
+                    updatedAt: new Date()
+                });
+                showAlert("Profile updated successfully", "success");
+            } catch (error) {
+                showAlert("Error updating profile: " + error.message, "danger");
+            }
+        }
+
+        // Switch View
+        function switchView(view) {
+            document.querySelectorAll(".view-content").forEach(el => el.style.display = "none");
+            document.querySelectorAll(".sidebar-link").forEach(el => el.classList.remove("active"));
+            
+            document.getElementById(view).style.display = "block";
+            event.target.classList.add("active");
+        }
+
+        // Handle Logout
+        async function handleLogout() {
+            const result = await logoutUser();
+            if (result.success) {
+                window.location.href = "student-login.html";
+            }
+        }
+    </script>
+</body>
+</html>

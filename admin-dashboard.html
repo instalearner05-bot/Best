@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - AIpreneurs Global Challenge 2025</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-logo">
+                <img src="../assets/aipreneurs-logo.svg" alt="AIpreneurs Logo" class="logo-img">
+            </a>
+            <div class="nav-auth">
+                <span id="userEmail" style="color: white; margin-right: 1.5rem;"></span>
+                <button onclick="handleLogout()" class="btn logout-btn">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="#dashboard" class="sidebar-link active" onclick="switchView('dashboard')">Dashboard</a></li>
+                <li><a href="#participants" class="sidebar-link" onclick="switchView('participants')">Participants</a></li>
+                <li><a href="#tasks" class="sidebar-link" onclick="switchView('tasks')">Tasks</a></li>
+                <li><a href="#submissions" class="sidebar-link" onclick="switchView('submissions')">Submissions</a></li>
+                <li><a href="#announcements" class="sidebar-link" onclick="switchView('announcements')">Announcements</a></li>
+                <li><a href="#team" class="sidebar-link" onclick="switchView('team')">Team Management</a></li>
+                <li><a href="#activity" class="sidebar-link" onclick="switchView('activity')">Activity Logs</a></li>
+                <li><a href="#profile" class="sidebar-link" onclick="switchView('profile')">Profile</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard View -->
+            <div id="dashboard" class="view-content">
+                <div class="page-header">
+                    <h1>Admin Dashboard</h1>
+                    <p>AIpreneurs Global Challenge 2025 Management Panel</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card accent-primary">
+                        <div class="stat-label">Total Registrations</div>
+                        <div class="stat-value" id="totalRegistrations">0</div>
+                        <div class="stat-change" id="regChange">+12% from last month</div>
+                    </div>
+                    <div class="stat-card accent-secondary">
+                        <div class="stat-label">Verified Participants</div>
+                        <div class="stat-value" id="verifiedParticipants">0</div>
+                        <div class="stat-change" id="verifyChange">+8% from last month</div>
+                    </div>
+                    <div class="stat-card accent-green">
+                        <div class="stat-label">Completed Tasks</div>
+                        <div class="stat-value" id="completedTasks">0</div>
+                        <div class="stat-change" id="completeChange">+15% from last month</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Pending Submissions</div>
+                        <div class="stat-value" id="pendingSubmissions">0</div>
+                        <div class="stat-change" id="pendingChange">-3% from last month</div>
+                    </div>
+                </div>
+
+                <h2 style="color: var(--primary-color); margin-top: 2rem; margin-bottom: 1rem;">Quick Actions</h2>
+                <div class="grid grid-4">
+                    <button onclick="switchView('tasks')" class="card" style="border: none; cursor: pointer; text-align: center;">
+                        <div class="card-icon" style="margin: 0 auto;">+</div>
+                        <h3 class="card-title">Upload Task</h3>
+                    </button>
+                    <button onclick="switchView('announcements')" class="card" style="border: none; cursor: pointer; text-align: center;">
+                        <div class="card-icon" style="margin: 0 auto;">+</div>
+                        <h3 class="card-title">New Announcement</h3>
+                    </button>
+                    <button onclick="switchView('team')" class="card" style="border: none; cursor: pointer; text-align: center;">
+                        <div class="card-icon" style="margin: 0 auto;">+</div>
+                        <h3 class="card-title">Add Team Member</h3>
+                    </button>
+                    <button onclick="switchView('participants')" class="card" style="border: none; cursor: pointer; text-align: center;">
+                        <div class="card-icon" style="margin: 0 auto;">V</div>
+                        <h3 class="card-title">Manage Participants</h3>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Participants View -->
+            <div id="participants" class="view-content" style="display: none;">
+                <div class="page-header">
+                    <h1>Participants Management</h1>
+                    <p>View, edit, and manage all registered participants</p>
+                </div>
+
+                <div style="margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <input type="text" id="searchParticipants" placeholder="Search by name or email" style="flex: 1; min-width: 200px; padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 6px;">
+                    <select id="filterStatus" style="padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 6px;">
+                        <option value="">All Status</option>
+                        <option value="approved">Approved</option>
+                        <option value="pending">Pending</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                    <button onclick="exportParticipants()" class="btn btn-primary">Export CSV</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="participantsTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>School</th>
+                                <th>Status</th>
+                                <th>Registered</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="participantsBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tasks View -->
+            <div id="tasks" class="view-content" style="display: none;">
+                <div class="page-header">
+                    <h1>Tasks Management</h1>
+                    <p>Upload and manage event tasks</p>
+                </div>
+
+                <button onclick="openModal('taskModal')" class="btn btn-primary" style="margin-bottom: 2rem;">Upload New Task</button>
+
+                <div class="table-responsive">
+                    <table id="tasksTable">
+                        <thead>
+                            <tr>
+                                <th>Task ID</th>
+                                <th>Title</th>
+                                <th>Stage</th>
+                                <th>Due Date</th>
+                                <th>Submissions</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasksBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Submissions View -->
+            <div id="submissions" class="view-content" style="display: none;">
+                <div class="page-header">
+                    <h1>Submission Review</h1>
+                    <p>Review and track all participant submissions</p>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <select id="filterSubmissionStatus" style="padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 6px;">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="submissionsTable">
+                        <thead>
+                            <tr>
+                                <th>Participant</th>
+                                <th>Task</th>
+                                <th>Submitted</th>
+                                <th>Status</th>
+                                <th>File</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="submissionsBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Announcements View -->
+            <div id="announcements" class="view-content" style="display: none;">
+                <div class="page-header">
+                    <h1>Announcements Management</h1>
+                    <p>Create and manage event announcements</p>
+                </div>
+
+                <button onclick="openModal('announcementModal')" class="btn btn-primary" style="margin-bottom: 2rem;">Create Announcement</button>
+
+                <div id="announcementsList"></div>
+            </div>
+
+            <!-- Team Management View -->
+            <div id="team" class="view-content" style="display: none;">
+                <div class="page-header">
+                    <h1>Team Management</h1>
+                    <p>Manage volunteers and team members</p>
+                </div>
+
+                <button onclick="openModal('teamModal')" class="btn btn-primary" style="margin-bottom: 2rem;">Add Team Member</button>
+
+                <div class="table-responsive">
+                    <table id="teamTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Department</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teamBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Activity Logs View -->
+            <div id="activity" class="view-content" style="display: none;">
+                <div class="page-header">
+                    <h1>Activity Logs</h1>
+                    <p>System activity and user actions (Read-only)</p>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="activityTable">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>User</th>
+                                <th>Action</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activityBody">
+                            <tr>
+                                <td>2025-01-10 14:30</td>
+                                <td>admin@aipreneurs.com</td>
+                                <td>Task Uploaded</td>
+                                <td>Innovation Challenge - Stage 1</td>
+                            </tr>
+                            <tr>
+                                <td>2025-01-09 10:15</td>
+                                <td>volunteer@aipreneurs.com</td>
+                                <td>Submission Reviewed</td>
+                                <td>Submission #2341 approved</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Profile View -->
+            <div id="profile" class="view-content" style="display: none;">
+                <div class="page-header">
+                    <h1>Admin Profile</h1>
+                    <p>Your account information</p>
+                </div>
+
+                <div class="card" style="max-width: 600px;">
+                    <form id="profileForm" onsubmit="handleProfileUpdate(event)">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="profileEmail" readonly style="background: var(--light-bg);">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="profileName">Full Name</label>
+                            <input type="text" id="profileName" name="profileName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="profilePhone">Phone Number</label>
+                            <input type="tel" id="profilePhone" name="profilePhone">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Task Upload Modal -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Upload New Task</span>
+                <button class="modal-close" onclick="closeModal('taskModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="taskForm" onsubmit="handleTaskUpload(event)">
+                    <div class="form-group">
+                        <label for="taskTitle">Task Title</label>
+                        <input type="text" id="taskTitle" name="taskTitle" required placeholder="Enter task title">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taskDescription">Description</label>
+                        <textarea id="taskDescription" name="taskDescription" required placeholder="Task description"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taskStage">Stage</label>
+                        <input type="text" id="taskStage" name="taskStage" required placeholder="e.g., Stage 1, Stage 2">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taskDueDate">Due Date</label>
+                        <input type="date" id="taskDueDate" name="taskDueDate" required>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" onclick="closeModal('taskModal')" class="btn btn-light">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Upload Task</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Announcement Modal -->
+    <div id="announcementModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Create Announcement</span>
+                <button class="modal-close" onclick="closeModal('announcementModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="announcementForm" onsubmit="handleCreateAnnouncement(event)">
+                    <div class="form-group">
+                        <label for="annTitle">Title</label>
+                        <input type="text" id="annTitle" name="annTitle" required placeholder="Announcement title">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="annContent">Content</label>
+                        <textarea id="annContent" name="annContent" required placeholder="Announcement content"></textarea>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" onclick="closeModal('announcementModal')" class="btn btn-light">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Publish</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Member Modal -->
+    <div id="teamModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Add Team Member</span>
+                <button class="modal-close" onclick="closeModal('teamModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="teamForm" onsubmit="handleAddTeamMember(event)">
+                    <div class="form-group">
+                        <label for="teamName">Full Name</label>
+                        <input type="text" id="teamName" name="teamName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="teamEmail">Email</label>
+                        <input type="email" id="teamEmail" name="teamEmail" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="teamRole">Role</label>
+                        <select id="teamRole" name="teamRole" required>
+                            <option value="">Select role</option>
+                            <option value="volunteer">Volunteer</option>
+                            <option value="coordinator">Coordinator</option>
+                            <option value="mentor">Mentor</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="teamPassword">Password</label>
+                        <input type="password" id="teamPassword" name="teamPassword" required placeholder="Set initial password">
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" onclick="closeModal('teamModal')" class="btn btn-light">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Member</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-bottom">
+            <p>&copy; 2025 AIpreneurs Global Challenge. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../js/utils.js"></script>
+    <script src="../js/firebase-config.js"></script>
+    <script>
+        let currentUser = null;
+        let allParticipants = [];
+        let allTasks = [];
+        let allSubmissions = [];
+
+        // Initialize Dashboard
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById("userEmail").textContent = user.email;
+                await loadDashboardData();
+            } else {
+                window.location.href = "admin-login.html";
+            }
+        });
+
+        // Load Dashboard Data
+        async function loadDashboardData() {
+            const userResult = await getUserData(currentUser.uid);
+            if (userResult.success) {
+                const userData = userResult.data;
+                document.getElementById("profileEmail").value = currentUser.email;
+                document.getElementById("profileName").value = userData.fullName || "";
+                document.getElementById("profilePhone").value = userData.phone || "";
+            }
+
+            // Load dashboard statistics
+            const statsResult = await getDashboardStats();
+            if (statsResult.success) {
+                const stats = statsResult.data;
+                document.getElementById("totalRegistrations").textContent = stats.totalRegistrations;
+                document.getElementById("verifiedParticipants").textContent = stats.verifiedParticipants;
+                document.getElementById("completedTasks").textContent = stats.completedTasks;
+                document.getElementById("pendingSubmissions").textContent = stats.pendingSubmissions;
+            }
+
+            // Load participants
+            const participantsResult = await getAllParticipants();
+            if (participantsResult.success) {
+                allParticipants = participantsResult.data;
+                displayParticipants();
+            }
+
+            // Load tasks
+            const tasksResult = await getTasks();
+            if (tasksResult.success) {
+                allTasks = tasksResult.data;
+                displayTasks();
+            }
+
+            // Load submissions
+            const submissionsResult = await getSubmissions();
+            if (submissionsResult.success) {
+                allSubmissions = submissionsResult.data;
+                displaySubmissions();
+            }
+
+            // Load announcements
+            const announcementsResult = await getAnnouncements();
+            if (announcementsResult.success) {
+                displayAnnouncements(announcementsResult.data);
+            }
+        }
+
+        // Display Participants
+        function displayParticipants() {
+            const tbody = document.getElementById("participantsBody");
+            if (allParticipants.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='6'>No participants</td></tr>";
+                return;
+            }
+
+            tbody.innerHTML = allParticipants.map(p => `
+                <tr>
+                    <td>${p.fullName || "N/A"}</td>
+                    <td>${p.email}</td>
+                    <td>${p.school || "N/A"}</td>
+                    <td><span class="badge badge-${p.status === 'approved' ? 'success' : p.status === 'pending' ? 'warning' : 'danger'}">${p.status}</span></td>
+                    <td>${formatDate(p.createdAt)}</td>
+                    <td>
+                        <button onclick="editParticipant('${p.id}')" class="btn btn-sm btn-primary">Edit</button>
+                        <button onclick="deleteParticipant('${p.id}')" class="btn btn-sm btn-danger">Delete</button>
+                    </td>
+                </tr>
+            `).join("");
+        }
+
+        // Display Tasks
+        function displayTasks() {
+            const tbody = document.getElementById("tasksBody");
+            if (allTasks.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='6'>No tasks</td></tr>";
+                return;
+            }
+
+            tbody.innerHTML = allTasks.map(t => `
+                <tr>
+                    <td>${t.id}</td>
+                    <td>${t.title}</td>
+                    <td><span class="badge badge-info">${t.stage}</span></td>
+                    <td>${formatDate(t.dueDate)}</td>
+                    <td>${allSubmissions.filter(s => s.taskId === t.id).length}</td>
+                    <td>
+                        <button class="btn btn-sm btn-light">View</button>
+                    </td>
+                </tr>
+            `).join("");
+        }
+
+        // Display Submissions
+        function displaySubmissions() {
+            const tbody = document.getElementById("submissionsBody");
+            if (allSubmissions.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='6'>No submissions</td></tr>";
+                return;
+            }
+
+            tbody.innerHTML = allSubmissions.slice(0, 10).map(sub => `
+                <tr>
+                    <td>${sub.userId}</td>
+                    <td>${sub.taskId}</td>
+                    <td>${formatDate(sub.submittedAt)}</td>
+                    <td><span class="badge badge-${getStatusColor(sub.status)}">${sub.status}</span></td>
+                    <td><a href="${sub.fileUrl}" target="_blank" class="btn btn-sm btn-light">Download</a></td>
+                    <td>
+                        <button class="btn btn-sm btn-primary">Review</button>
+                    </td>
+                </tr>
+            `).join("");
+        }
+
+        // Display Announcements
+        function displayAnnouncements(announcements) {
+            const container = document.getElementById("announcementsList");
+            if (announcements.length === 0) {
+                container.innerHTML = "<p>No announcements</p>";
+                return;
+            }
+
+            container.innerHTML = announcements.map(ann => `
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                        <h3 class="card-title">${ann.title}</h3>
+                        <span class="badge badge-success">Published</span>
+                    </div>
+                    <p>${ann.content}</p>
+                    <p style="margin-top: 1rem; color: var(--text-light); font-size: 0.85rem;">
+                        <strong>Posted:</strong> ${formatDateTime(ann.createdAt)}
+                    </p>
+                </div>
+            `).join("");
+        }
+
+        // Get Status Color
+        function getStatusColor(status) {
+            switch(status) {
+                case "approved": return "success";
+                case "pending": return "warning";
+                case "rejected": return "danger";
+                default: return "info";
+            }
+        }
+
+        // Handle Task Upload
+        async function handleTaskUpload(event) {
+            event.preventDefault();
+
+            const title = document.getElementById("taskTitle").value;
+            const description = document.getElementById("taskDescription").value;
+            const stage = document.getElementById("taskStage").value;
+            const dueDate = document.getElementById("taskDueDate").value;
+
+            try {
+                const result = await createTask(title, description, dueDate, stage);
+                if (result.success) {
+                    showAlert("Task uploaded successfully", "success");
+                    closeModal("taskModal");
+                    document.getElementById("taskForm").reset();
+                    await loadDashboardData();
+                }
+            } catch (error) {
+                showAlert("Error uploading task: " + error.message, "danger");
+            }
+        }
+
+        // Handle Create Announcement
+        async function handleCreateAnnouncement(event) {
+            event.preventDefault();
+
+            const title = document.getElementById("annTitle").value;
+            const content = document.getElementById("annContent").value;
+
+            try {
+                const result = await createAnnouncement(title, content, currentUser.uid);
+                if (result.success) {
+                    showAlert("Announcement published successfully", "success");
+                    closeModal("announcementModal");
+                    document.getElementById("announcementForm").reset();
+                    await loadDashboardData();
+                }
+            } catch (error) {
+                showAlert("Error creating announcement: " + error.message, "danger");
+            }
+        }
+
+        // Handle Add Team Member
+        async function handleAddTeamMember(event) {
+            event.preventDefault();
+
+            const name = document.getElementById("teamName").value;
+            const email = document.getElementById("teamEmail").value;
+            const role = document.getElementById("teamRole").value;
+            const password = document.getElementById("teamPassword").value;
+
+            try {
+                const result = await registerUser(email, password, role);
+                if (result.success) {
+                    await updateUserData(result.user.uid, {
+                        fullName: name,
+                        department: role
+                    });
+                    showAlert("Team member added successfully", "success");
+                    closeModal("teamModal");
+                    document.getElementById("teamForm").reset();
+                }
+            } catch (error) {
+                showAlert("Error adding team member: " + error.message, "danger");
+            }
+        }
+
+        // Export Participants
+        function exportParticipants() {
+            exportToCSV(allParticipants, "participants.csv");
+        }
+
+        // Handle Profile Update
+        async function handleProfileUpdate(event) {
+            event.preventDefault();
+
+            const fullName = document.getElementById("profileName").value;
+            const phone = document.getElementById("profilePhone").value;
+
+            try {
+                await updateUserData(currentUser.uid, {
+                    fullName: fullName,
+                    phone: phone,
+                    updatedAt: new Date()
+                });
+                showAlert("Profile updated successfully", "success");
+            } catch (error) {
+                showAlert("Error updating profile: " + error.message, "danger");
+            }
+        }
+
+        // Switch View
+        function switchView(view) {
+            document.querySelectorAll(".view-content").forEach(el => el.style.display = "none");
+            document.querySelectorAll(".sidebar-link").forEach(el => el.classList.remove("active"));
+            
+            document.getElementById(view).style.display = "block";
+            if (event && event.target) {
+                event.target.classList.add("active");
+            }
+        }
+
+        // Handle Logout
+        async function handleLogout() {
+            const result = await logoutUser();
+            if (result.success) {
+                window.location.href = "admin-login.html";
+            }
+        }
+    </script>
+</body>
+</html>

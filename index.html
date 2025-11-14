@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIpreneurs Global Challenge 2025 - Management Panel</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <img src="./assets/aipreneurs-logo.svg" alt="AIpreneurs Logo" class="logo-img">
+            </a>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#home" class="nav-link">Home</a></li>
+                <li><a href="#about" class="nav-link">About Event</a></li>
+                <li><a href="#details" class="nav-link">Event Details</a></li>
+                <li><a href="#prizes" class="nav-link">Prizes</a></li>
+                <li><a href="pages/about-event.html" class="nav-link">Learn More</a></li>
+            </ul>
+            <div class="nav-auth" id="navAuth">
+                <a href="pages/student-login.html" class="btn-login">Student Login</a>
+                <a href="pages/admin-login.html" class="btn-signup">Admin Panel</a>
+            </div>
+            <button class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <h1>AIpreneurs Global Challenge 2025</h1>
+            <p>Transforming Ideas into Reality Through Innovation and Entrepreneurship</p>
+            <div class="hero-buttons">
+                <a href="pages/student-login.html" class="btn-primary">Join as Student</a>
+                <a href="pages/about-event.html" class="btn-secondary">Discover More</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- What We Do Section -->
+    <section class="section" id="about">
+        <div class="container">
+            <h2 class="section-title">What We Do</h2>
+            <p class="section-subtitle">Empowering the next generation of entrepreneurs and innovators</p>
+            
+            <div class="grid grid-3">
+                <div class="card">
+                    <div class="card-icon">1</div>
+                    <h3 class="card-title">Innovation Hub</h3>
+                    <p class="card-description">A platform where students collaborate, ideate, and develop groundbreaking solutions to real-world problems.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">2</div>
+                    <h3 class="card-title">Expert Mentorship</h3>
+                    <p class="card-description">Get guidance from industry experts, entrepreneurs, and professionals to refine your ideas and business strategies.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">3</div>
+                    <h3 class="card-title">Competition & Recognition</h3>
+                    <p class="card-description">Showcase your innovations in a global competition and win recognition, funding opportunities, and networking.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">4</div>
+                    <h3 class="card-title">Skill Development</h3>
+                    <p class="card-description">Comprehensive training in entrepreneurship, AI, business development, and digital transformation skills.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">5</div>
+                    <h3 class="card-title">Global Network</h3>
+                    <p class="card-description">Connect with innovators, investors, and thought leaders from around the world to expand your horizons.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">6</div>
+                    <h3 class="card-title">Career Opportunities</h3>
+                    <p class="card-description">Access exclusive job placements, internships, and investment opportunities from leading organizations.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Event Details Section -->
+    <section class="section" id="details" style="background: var(--light-bg);">
+        <div class="container">
+            <h2 class="section-title">Event Details</h2>
+            <p class="section-subtitle">Key information about AIpreneurs Global Challenge 2025</p>
+            
+            <div class="grid grid-2">
+                <div class="card">
+                    <h3 class="card-title">Duration</h3>
+                    <p class="card-description">
+                        <strong>Timeline:</strong> January 2025 - December 2025
+                        <br><br>
+                        A full-year program with multiple stages, each designed to progressively develop your entrepreneurial journey.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Eligibility</h3>
+                    <p class="card-description">
+                        <strong>Who Can Participate:</strong>
+                        <br>
+                        - Students from schools and colleges worldwide
+                        <br>
+                        - Age 16+
+                        <br>
+                        - No prior experience required
+                        <br>
+                        - Individual or team participation
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Prize Pool</h3>
+                    <p class="card-description">
+                        <strong>Prize Details:</strong> Final prize breakdown will be announced by the organizers. All prizes and award categories are subject to confirmation.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Features</h3>
+                    <p class="card-description">
+                        <strong>What's Included:</strong>
+                        <br>
+                        - Live workshops and webinars
+                        <br>
+                        - Mentorship from industry experts
+                        <br>
+                        - Networking events
+                        <br>
+                        - Certificate of participation
+                        <br>
+                        - Job placement assistance
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <!-- Prizes Section -->
+    <section class="section" id="prizes" style="background: var(--light-bg);">
+        <div class="container">
+            <h2 class="section-title">Prizes & Awards</h2>
+            <p class="section-subtitle">Recognition and rewards for outstanding innovation</p>
+
+            <div class="prizes-grid">
+                <div class="prize-card prize-gold">
+                    <div class="prize-icon">1</div>
+                    <h3 class="prize-amount">1st Place</h3>
+                    <p class="prize-type">Top Prize</p>
+                    <p class="prize-desc">Awarded to the most innovative AI solution demonstrating exceptional creativity and real-world impact potential.</p>
+                </div>
+
+                <div class="prize-card prize-silver">
+                    <div class="prize-icon">2</div>
+                    <h3 class="prize-amount">2nd Place</h3>
+                    <p class="prize-type">Runner-up</p>
+                    <p class="prize-desc">Recognition for outstanding innovation and strong execution in AI solution development.</p>
+                </div>
+
+                <div class="prize-card prize-bronze">
+                    <div class="prize-icon">3</div>
+                    <h3 class="prize-amount">3rd Place</h3>
+                    <p class="prize-type">Third Prize</p>
+                    <p class="prize-desc">Recognition for creative and well-executed AI solutions showcasing strong innovation.</p>
+                </div>
+
+                <div class="prize-card prize-gifts">
+                    <div class="prize-icon">🎁</div>
+                    <h3 class="prize-amount">Special Gifts</h3>
+                    <p class="prize-type">4th–10th Place</p>
+                    <p class="prize-desc">Special recognition and gifts for shortlisted participants and finalists.</p>
+                </div>
+            </div>
+
+            <!-- Category awards row -->
+            <div class="prizes-grid prizes-grid-4">
+                <div class="prize-card prize-category">
+                    <h4 class="card-title">Category Award</h4>
+                    <p class="card-sub">Best AI Business Idea</p>
+                    <p class="prize-desc">Recognition for the most commercially viable AI solution with strong business potential.</p>
+                </div>
+
+                <div class="prize-card prize-category">
+                    <h4 class="card-title">Category Award</h4>
+                    <p class="card-sub">Best Social Impact</p>
+                    <p class="prize-desc">Awarded to solutions addressing real-world problems with significant social or environmental benefit.</p>
+                </div>
+
+                <div class="prize-card prize-category">
+                    <h4 class="card-title">Category Award</h4>
+                    <p class="card-sub">Most Innovative Idea</p>
+                    <p class="prize-desc">Recognition for groundbreaking and creative AI solutions that push technological boundaries.</p>
+                </div>
+
+                <div class="prize-card prize-category">
+                    <h4 class="card-title">Category Award</h4>
+                    <p class="card-sub">Future CEO Award</p>
+                    <p class="prize-desc">Recognition for exceptional leadership, vision, and entrepreneurial potential demonstrated in pitching.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" style="background: linear-gradient(135deg, var(--primary-color) 0%, #0f3460 100%); color: white; text-align: center;">
+        <div class="container">
+            <h2 style="font-size: 2.5rem; margin-bottom: 1rem; color: white;">Ready to Start Your Entrepreneurial Journey?</h2>
+            <p style="font-size: 1.1rem; margin-bottom: 2rem; color: rgba(255, 255, 255, 0.9);">Join thousands of innovators and entrepreneurs in the AIpreneurs Global Challenge 2025</p>
+            <a href="pages/student-login.html" class="btn-primary">Register Now</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>About AIpreneurs</h4>
+                <p>AIpreneurs Global Challenge is dedicated to nurturing the next generation of entrepreneurs and innovators through comprehensive training, mentorship, and real-world opportunities.</p>
+            </div>
+
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <a href="#about">About Event</a><br>
+                <a href="pages/about-event.html">Event Details</a><br>
+                <a href="#contact">Contact Us</a><br>
+                <a href="#">Privacy Policy</a>
+            </div>
+
+            <div class="footer-section">
+                <h4>Contact Information</h4>
+                <p>Email: info@aipreneurs2025.com</p>
+                <p>Phone: +1 (555) 123-4567</p>
+                <p>Address: Innovation Hub, Tech City</p>
+            </div>
+
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <p>
+                    <a href="#">LinkedIn</a> | 
+                    <a href="#">Twitter</a> | 
+                    <a href="#">Instagram</a> | 
+                    <a href="#">Facebook</a>
+                </p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2025 AIpreneurs Global Challenge. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="./js/utils.js"></script>
+    <script>
+        // Mobile menu toggle
+        const hamburger = document.getElementById("hamburger");
+        const navMenu = document.getElementById("navMenu");
+
+        hamburger.addEventListener("click", function() {
+            navMenu.style.display = navMenu.style.display === "flex" ? "none" : "flex";
+        });
+    </script>
+</body>
+</html>

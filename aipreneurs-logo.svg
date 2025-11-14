@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="400" height="100">
+  <defs>
+    <style>
+      .preneurs-text { font-family: 'Arial', 'Helvetica', sans-serif; font-weight: 700; font-size: 38px; letter-spacing: -1px; }
+      .challenge-text { font-family: 'Arial', 'Helvetica', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 1px; }
+    </style>
+  </defs>
+  
+  <!-- Blue curved A logo -->
+  <g fill="none" stroke="#1e5ba8" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Left side of A -->
+    <path d="M 22 75 L 45 12"/>
+    <!-- Right side of A -->
+    <path d="M 68 75 L 45 12"/>
+    <!-- Horizontal bar -->
+    <line x1="32" y1="48" x2="58" y2="48" stroke-width="7"/>
+    <!-- Curved accent dots -->
+    <circle cx="60" cy="20" r="5" fill="#1e5ba8"/>
+    <circle cx="35" cy="35" r="3" fill="#1e5ba8"/>
+  </g>
+  
+  <!-- Main text: preneurs -->
+  <text x="90" y="52" class="preneurs-text" fill="#1e3a8a">preneurs</text>
+  
+  <!-- Subtitle: global challenge -->
+  <text x="90" y="75" class="challenge-text" fill="#1e3a8a">global challenge</text>
+</svg>
+
+
+
+
+
+
